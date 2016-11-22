@@ -1,7 +1,7 @@
 SpannableBar
 ===================
 
-Part of library android-timetable-core to display time tables for planning time for employees in businesses
+SpannableBar is a Grid-style spannable bar, that is useful when you need a way to span a bar over columns. The view allows you to set the starting column, the span, the number of columns, and more.
 
 I have personally spent days to GridView, GridLayout and TableLayout but have been unable to SIMPLY make a 'bar' that spans over a couple of columns, with the possibility to set the start as well.
 Even if that would work, those views would be too over complicated with a lot of features I did not need.
