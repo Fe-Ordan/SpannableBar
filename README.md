@@ -1,4 +1,5 @@
-SpannableBar
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.greasemonk/spannablebar/badge.svg?style=flat)](https://maven-badges.herokuapp.com/maven-central/com.github.greasemonk/spannablebar)
+SpannableBar 
 ===================
 
 SpannableBar is a Grid-style spannable bar, that is useful when you need a way to span a bar over columns. The view allows you to set the starting column, the span, the number of columns, and more.
