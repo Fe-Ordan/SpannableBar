@@ -20,7 +20,7 @@ Include the following in your build.gradle as a dependency:
 
 ```gradle
 dependencies {
-  compile 'com.github.greasemonk:spannablebar:1.0.0'
+  compile 'com.github.greasemonk:spannablebar:1.0.1'
 }
 ```
 
