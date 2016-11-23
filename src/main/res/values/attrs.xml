@@ -5,5 +5,9 @@
         <attr name="barColor" format="color"/>
         <attr name="barPadding" format="dimension"/>
         <attr name="barTextColor" format="color"/>
+        <attr name="barTextSize" format="dimension"/>
+        <attr name="barStart" format="integer"/>
+        <attr name="barSpan" format="integer"/>
+        <attr name="barColumns" format="integer"/>
     </declare-styleable>
 </resources>

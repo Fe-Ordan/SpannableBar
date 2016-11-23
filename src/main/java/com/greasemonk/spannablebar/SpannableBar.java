@@ -7,13 +7,22 @@ import android.graphics.*;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.RoundRectShape;
 import android.os.Build;
+import android.support.annotation.IntRange;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
+import android.util.TypedValue;
 import android.view.View;
 
 /**
  * Created by Wiebe Geertsma on 10-11-2016.
- * E-mail: e.w.geertsma@gmail.com
+ * E-mail: <a href="mailto:e.w.geertsma@gmail.com?SUBJECT=SpannableBar">e.w.geertsma@gmail.com</a>
+ * 
+ * @see <a href="https://github.com/GreaseMonk/SpannableBar">SpannableBar on Github</a>
+ * @see <a href="https://github.com/GreaseMonk/SpannableBar/issues">Issue tracker</a>
+ * <br><br>
+ * SpannableBar is a Grid-style spannable bar, that is useful when you need a way to span a bar over columns. 
+ * The view allows you to set the starting column, the span, the number of columns, and more.
  */
 public class SpannableBar extends View
 {
@@ -22,7 +31,7 @@ public class SpannableBar extends View
 	public static final int DEFAULT_COLUMN_COUNT = 7; // week view, 7 days
 	public static final int DEFAULT_PADDING = 10;
 	public static final float DEFAULT_RADIUS = 8f;
-	public static final int DEFAULT_BAR_COLOR = Color.LTGRAY;
+	public static final int DEFAULT_BAR_COLOR = Color.argb(128, 63,81,181);
 	public static final int DEFAULT_TEXT_SIZE_SP = 12;
 	public static final int DEFAULT_TEXT_COLOR = Color.WHITE;
 	
@@ -32,10 +41,12 @@ public class SpannableBar extends View
 			columnCount = DEFAULT_COLUMN_COUNT,
 			padding = DEFAULT_PADDING,
 			textColor = DEFAULT_TEXT_COLOR,
-			color = DEFAULT_BAR_COLOR;
+			color = DEFAULT_BAR_COLOR,
+			textSize = DEFAULT_TEXT_SIZE_SP;
 	private float scaledDensity, radius;
 	private Paint textPaint, linePaint;
 	private ShapeDrawable drawable;
+	private boolean drawCells = false;
 	
 	/**
 	 * An array of 8 radius values, for the outer roundrect.
@@ -95,24 +106,35 @@ public class SpannableBar extends View
 				color = typedArray.getColor(R.styleable.SpannableBar_barColor, DEFAULT_BAR_COLOR);
 				padding = typedArray.getLayoutDimension(R.styleable.SpannableBar_barPadding, DEFAULT_PADDING);
 				textColor = typedArray.getColor(R.styleable.SpannableBar_barTextColor, Color.WHITE);
+				textSize = typedArray.getDimensionPixelSize(R.styleable.SpannableBar_barTextSize, DEFAULT_TEXT_SIZE_SP);
+				start = Math.abs(typedArray.getInteger(R.styleable.SpannableBar_barStart, DEFAULT_START));
+				span = Math.abs(typedArray.getInteger(R.styleable.SpannableBar_barSpan, DEFAULT_SPAN));
+				columnCount = Math.abs(typedArray.getInteger(R.styleable.SpannableBar_barColumns, DEFAULT_COLUMN_COUNT));
+				
 			} finally
 			{
 				typedArray.recycle();
 			}
 		}
-		drawable = new ShapeDrawable(new RoundRectShape(radii, null, null));
+		
+		correctValues();
+		
 		scaledDensity = context.getResources().getDisplayMetrics().scaledDensity;
-		Typeface typeface = Typeface.create(Typeface.SANS_SERIF, Typeface.BOLD_ITALIC);
+		Typeface typeface = Typeface.create(Typeface.SANS_SERIF, Typeface.NORMAL);
 		
 		textPaint = new Paint();
 		textPaint.setColor(textColor);
-		textPaint.setTextSize(scaledDensity * DEFAULT_TEXT_SIZE_SP);
+		textPaint.setTextSize(scaledDensity * textSize);
 		textPaint.setTextAlign(Paint.Align.CENTER);
 		textPaint.setTypeface(typeface);
+		textPaint.setAntiAlias(true);
 		
 		linePaint = new Paint();
 		linePaint.setColor(Color.GRAY);
 		linePaint.setAlpha(125);
+		
+		setRadius(DEFAULT_RADIUS);
+		setPadding(padding);
 		
 		requestLayout();
 	}
@@ -120,43 +142,44 @@ public class SpannableBar extends View
 	protected void onDraw(Canvas canvas)
 	{
 		super.onDraw(canvas);
-		
-		scaledDensity = getContext().getResources().getDisplayMetrics().scaledDensity;
 		final int colWidth = canvas.getWidth() / columnCount;
-		final int barPadding = Math.round(padding * scaledDensity);
 		
 		if (span > 0)
 		{
-			// Draw the grid for this row
-			// Draw a line along the bottom border
-			canvas.drawLine(0,getHeight(),getWidth(),getHeight(), linePaint);
-			// Draw the columns
-			for(int i = 0; i <= columnCount; i++)
+			if(drawCells)
 			{
-				int x = i * colWidth;
-				canvas.drawLine(x, 0, x, getHeight(), linePaint);
+				// Draw the grid for this row
+				// Draw a line along the bottom border
+				// canvas.drawLine(0, getHeight()-2, getWidth(), getHeight(), linePaint);
+				// Draw the columns
+				for (int i = 0; i <= columnCount; i++)
+				{
+					int x = i * colWidth;
+					canvas.drawLine(x, 0, x, getHeight(), linePaint);
+				}
 			}
 			
+			
+			
+			final int coordLeft = getPaddingLeft() + (start * colWidth);
+			final int coordTop = getPaddingTop();
+			final int coordRight = coordLeft + (span * colWidth) - getPaddingRight() - getPaddingLeft();
+			final int coordBottom = canvas.getHeight() - getPaddingBottom();
 			drawable.getPaint().setColor(color);
-			
-			final int coordLeft = barPadding + (start * colWidth);
-			final int coordTop = barPadding;
-			final int coordRight = coordLeft + (span * colWidth) - barPadding;
-			final int coordBottom = canvas.getHeight() - barPadding;
-			
 			drawable.setBounds(coordLeft, coordTop, coordRight, coordBottom);
 			drawable.draw(canvas);
 			
-			final int textCoordX = coordLeft + (coordRight / 2);
-			final int textBaselineToCenter = Math.abs(Math.round(((textPaint.descent() + textPaint.ascent()) / 2)));
-			final int textBaselineCoordY = (canvas.getHeight() / 2) + textBaselineToCenter;
-			if (text != null && !text.isEmpty())
+			// Only make a drawcall if there is actually something to draw.
+			if(text != null && !text.isEmpty())
 			{
-				canvas.drawText(text, textCoordX, textBaselineCoordY, textPaint);
+				final int textCoordX = coordLeft + (coordRight / 2);
+				final int textBaselineToCenter = Math.abs(Math.round(((textPaint.descent() + textPaint.ascent()) / 2)));
+				final int textBaselineCoordY = (canvas.getHeight() / 2) + textBaselineToCenter;
+				if (text != null && !text.isEmpty())
+				{
+					canvas.drawText(text, textCoordX, textBaselineCoordY, textPaint);
+				}
 			}
-			
-			
-			
 		}
 	}
 	
@@ -193,18 +216,58 @@ public class SpannableBar extends View
 		setMeasuredDimension(width, height);
 	}
 	
+	/**
+	 * Correct the start, span, and column count where needed.
+	 */
+	private void correctValues()
+	{
+		// Make sure to set values to zero if it was set below that.
+		start = Math.max(0, start);
+		span = Math.max(0, span);
+		columnCount = Math.max(0, columnCount);
+		
+		// Make sure the span vale is correct.
+		if(start + span > columnCount)
+		{
+			if(start <= columnCount)
+				span = columnCount - start;
+			if(start >= columnCount)
+				start = columnCount - 1;
+		}
+	}
 	
 	//region GETTERS & SETTERS
+	
+	/**
+	 * Sets all the required properties of the bar in one go.
+	 * Any values will be corrected for you, for example:
+	 * start = 3, span = 7, columnCount = 7, will have it's span corrected to 4.
+	 * Any values below zero will be automatically corrected to zero.
+	 * 
+	 * 
+	 * @param start the start column of the bar (0 to columnCount)
+	 * @param span the span of the bar
+	 * @param columnCount the amount of columns to set
+	 */
+	public void setProperties(@IntRange(from=0) int start, @IntRange(from=0) int span, @IntRange(from=1) int columnCount)
+	{
+		this.start = start;
+		this.span = span;
+		this.columnCount = columnCount;
+		correctValues();
+		invalidate();
+	}
 	
 	/**
 	 * Set the amount of columnCount
 	 *
 	 * @param numColumns the amount of columnCount to set
 	 */
-	public void setColumnCount(int numColumns)
+	public void setColumnCount(@IntRange(from=0) int numColumns)
 	{
-		columnCount = numColumns > 0 ? numColumns : 1;
-		requestLayout();
+		columnCount = numColumns;
+		correctValues();
+		invalidate();
 	}
 	
 	/**
@@ -212,7 +275,7 @@ public class SpannableBar extends View
 	 *
 	 * @param text the text to be displayed
 	 */
-	public void setText(String text)
+	public void setText(@Nullable String text)
 	{
 		this.text = text == null ? "" : text;
 		invalidate();
@@ -221,32 +284,28 @@ public class SpannableBar extends View
 	/**
 	 * Set the desired starting column of the bar. Any amount that is higher than the span
 	 * will automatically limit itself to the value of columnCount.
+	 * If you have set the amount of columns to 7, use 0-6.
 	 *
-	 * @param start which column to start the bar
+	 * @param start the start column of the bar (0 to columnCount)
 	 */
-	public void setStart(int start)
+	public void setStart(@IntRange(from=0) int start)
 	{
-		if (start <= columnCount)
-			this.start = start;
-		else
-			this.start = columnCount;
-		
+		this.start = start;
+		correctValues();
 		invalidate();
 	}
 	
 	/**
-	 * Set the bar's span.
+	 * Set the bar's span. This is the actual span, 
+	 * so a value of 1 will show a bar with one column filled.
 	 *
 	 * @param span the span to set the bar to.
 	 */
-	public void setSpan(int span)
+	public void setSpan(@IntRange(from=0) int span)
 	{
-		if (span <= (columnCount - start))
-			this.span = span;
-		else
-		{
-			this.span = columnCount - start;
-		}
+		this.span = span;
+		correctValues();
+		invalidate();
 	}
 	
 	/**
@@ -256,13 +315,27 @@ public class SpannableBar extends View
 	 */
 	public void setRadius(float radius)
 	{
-		this.radius = radius;
+		this.radius = scaledDensity * radius + 0.5f;
 		this.radii = new float[]{
 				radius, radius,
 				radius, radius,
 				radius, radius,
 				radius, radius
 		};
+		drawable = new ShapeDrawable(new RoundRectShape(radii, null, null));
+		invalidate();
+	}
+	
+	/**
+	 * Set the bar text size. Values that are zero or below will be brought back up to 1.
+	 *
+	 * @param sp
+	 */
+	public void setTextSize(@IntRange(from=1) int sp)
+	{
+		this.textSize = Math.max(1, sp);
+		textPaint.setTextSize(scaledDensity * this.textSize);
+		invalidate();
 	}
 	
 	/**
@@ -273,6 +346,63 @@ public class SpannableBar extends View
 	public void setPadding(int dp)
 	{
 		padding = dp;
+		invalidate();
+	}
+	
+	/**
+	 * Set the bar color
+	 * 
+	 * @param color the color to set the bar to, such as Color.WHITE.
+	 */
+	public void setColor(int color)
+	{
+		this.color = color;
+		invalidate();
+	}
+	
+	/**
+	 * Set the text alignment
+	 * 
+	 * @param align the alignment of the text to set.
+	 */
+	public void setTextAlignment(@NonNull Paint.Align align)
+	{
+		textPaint.setTextAlign(align);
+		invalidate();
+	}
+	
+	/**
+	 * Shows additional lines along the outline of each cell.
+	 * 
+	 * @param show set to TRUE to show cell lines
+	 */
+	public void setShowCellLines(boolean show)
+	{
+		this.drawCells = show;
+		invalidate();
+	}
+	
+	/**
+	 * Set the cell lines color
+	 * 
+	 * @param color the color to set the cell lines to.
+	 */
+	public void setCellLineColor(int color)
+	{
+		this.linePaint.setColor(color);
+		invalidate();
+	}
+	
+	/**
+	 * Set the text typeface, to set the desired font.
+	 * Default: Typeface.create(Typeface.SANS_SERIF, Typeface.BOLD);
+	 * 
+	 * @param typeface
+	 */
+	public void setTextTypeface(@NonNull Typeface typeface)
+	{
+		textPaint.setTypeface(typeface);
+		invalidate();
 	}
 	
 	//endregion
