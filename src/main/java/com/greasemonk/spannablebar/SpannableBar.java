@@ -29,7 +29,6 @@ public class SpannableBar extends View
 	public static final int DEFAULT_START = 0;
 	public static final int DEFAULT_SPAN = 7;
 	public static final int DEFAULT_COLUMN_COUNT = 7; // week view, 7 days
-	public static final int DEFAULT_PADDING = 10;
 	public static final float DEFAULT_RADIUS = 8f;
 	public static final int DEFAULT_BAR_COLOR = Color.argb(128, 63,81,181);
 	public static final int DEFAULT_TEXT_SIZE_SP = 12;
@@ -39,7 +38,6 @@ public class SpannableBar extends View
 	private int start = DEFAULT_START,
 			span = DEFAULT_SPAN,
 			columnCount = DEFAULT_COLUMN_COUNT,
-			padding = DEFAULT_PADDING,
 			textColor = DEFAULT_TEXT_COLOR,
 			color = DEFAULT_BAR_COLOR,
 			textSize = DEFAULT_TEXT_SIZE_SP;
@@ -104,7 +102,6 @@ public class SpannableBar extends View
 			{
 				text = typedArray.getString(R.styleable.SpannableBar_barText);
 				color = typedArray.getColor(R.styleable.SpannableBar_barColor, DEFAULT_BAR_COLOR);
-				padding = typedArray.getLayoutDimension(R.styleable.SpannableBar_barPadding, DEFAULT_PADDING);
 				textColor = typedArray.getColor(R.styleable.SpannableBar_barTextColor, Color.WHITE);
 				textSize = typedArray.getDimensionPixelSize(R.styleable.SpannableBar_barTextSize, DEFAULT_TEXT_SIZE_SP);
 				start = Math.abs(typedArray.getInteger(R.styleable.SpannableBar_barStart, DEFAULT_START));
@@ -134,8 +131,6 @@ public class SpannableBar extends View
 		linePaint.setAlpha(125);
 		
 		setRadius(DEFAULT_RADIUS);
-		setPadding(padding);
-		
 		requestLayout();
 	}
 	
@@ -339,17 +334,6 @@ public class SpannableBar extends View
 	}
 	
 	/**
-	 * Set the amount of padding around the bar
-	 *
-	 * @param dp the amount of dp to set the padding to.
-	 */
-	public void setPadding(int dp)
-	{
-		padding = dp;
-		invalidate();
-	}
-	
-	/**
 	 * Set the bar color
 	 * 
 	 * @param color the color to set the bar to, such as Color.WHITE.
@@ -397,7 +381,7 @@ public class SpannableBar extends View
 	 * Set the text typeface, to set the desired font.
 	 * Default: Typeface.create(Typeface.SANS_SERIF, Typeface.BOLD);
 	 * 
-	 * @param typeface
+	 * @param typeface the typeface to assign to the text
 	 */
 	public void setTextTypeface(@NonNull Typeface typeface)
 	{
