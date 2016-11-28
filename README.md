@@ -68,6 +68,11 @@ bar.setTextAlignment(Paint.Align align)
 bar.setShowCellLines(boolean show)
 bar.setCellLineColor(int color)
 bar.setTextTypeface(Typeface typeface)
+
+// Set the cell background color
+// Example:  bar.setColumnColor(0,Color.argb(48,0,0,0)); will make it light gray.
+bar.setColumnColor(int row, int color) 
+
 ```
 
 

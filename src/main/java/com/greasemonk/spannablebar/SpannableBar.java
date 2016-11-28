@@ -11,8 +11,13 @@ import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
+
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 /**
  * Created by Wiebe Geertsma on 10-11-2016.
@@ -45,6 +50,7 @@ public class SpannableBar extends View
 	private Paint textPaint, linePaint;
 	private ShapeDrawable drawable;
 	private boolean drawCells = false;
+	private Map<Integer, Paint> columnColors;
 	
 	/**
 	 * An array of 8 radius values, for the outer roundrect.
@@ -115,7 +121,7 @@ public class SpannableBar extends View
 		}
 		
 		correctValues();
-		
+		columnColors = new HashMap<Integer, Paint>();
 		scaledDensity = context.getResources().getDisplayMetrics().scaledDensity;
 		Typeface typeface = Typeface.create(Typeface.SANS_SERIF, Typeface.NORMAL);
 		
@@ -154,15 +160,29 @@ public class SpannableBar extends View
 				}
 			}
 			
-			
-			
 			final int coordLeft = getPaddingLeft() + (start * colWidth);
 			final int coordTop = getPaddingTop();
 			final int coordRight = coordLeft + (span * colWidth) - getPaddingRight() - getPaddingLeft();
 			final int coordBottom = canvas.getHeight() - getPaddingBottom();
+			// Draw the column background colors
+			if(columnColors != null)
+			{
+				for (Integer key : columnColors.keySet())
+				{
+					// Get coordinates without padding
+					int left = key * colWidth;
+					int top = 0;
+					int right = left + colWidth;
+					int bottom = canvas.getHeight();
+					
+					canvas.drawRect(left, top, right, bottom, columnColors.get(key));
+				}
+			}
 			drawable.getPaint().setColor(color);
 			drawable.setBounds(coordLeft, coordTop, coordRight, coordBottom);
 			drawable.draw(canvas);
+			
+			
 			
 			// Only make a drawcall if there is actually something to draw.
 			if(text != null && !text.isEmpty())
@@ -220,6 +240,17 @@ public class SpannableBar extends View
 		start = Math.max(0, start);
 		span = Math.max(0, span);
 		columnCount = Math.max(0, columnCount);
+		if(columnColors != null)
+		{
+			Iterator<Integer> iterator = columnColors.keySet().iterator();
+			while(iterator.hasNext())
+			{
+				Integer key = iterator.next();
+				if(key > columnCount)
+					columnColors.remove(key);
+			}
+		}
+		
 		
 		// Make sure the span vale is correct.
 		if(start + span > columnCount)
@@ -232,6 +263,41 @@ public class SpannableBar extends View
 	}
 	
 	//region GETTERS & SETTERS
+	
+	/**
+	 * Set a column's cell background color.
+	 * 
+	 * @param row the row to apply the color to
+	 * @param color the color to apply 
+	 */
+	public void setColumnColor(int row, int color)
+	{
+		Paint paint = new Paint();
+		paint.setColor(color);
+		columnColors.put(row, paint);
+	}
+	
+	/**
+	 * Removes all coloring that was previously applied to any column.
+	 */
+	public void removeColumnColors()
+	{
+		columnColors.clear();
+	}
+	
+	/**
+	 * Removes the column color of a specific row.
+	 * 
+	 * @param row the row to remove the column color of.
+	 */
+	public void removeColumnColor(int row)
+	{
+		if(columnColors == null)
+			return;
+		
+		if(columnColors.containsKey(row))
+			columnColors.remove(row);
+	}
 	
 	/**
 	 * Sets all the required properties of the bar in one go.
