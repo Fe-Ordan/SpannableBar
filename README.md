@@ -1,4 +1,7 @@
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.greasemonk/spannablebar/badge.svg?style=flat)](https://maven-badges.herokuapp.com/maven-central/com.github.greasemonk/spannablebar) [![API](https://img.shields.io/badge/API-16%2B-yellow.svg?style=flat)](https://android-arsenal.com/api?level=16)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.greasemonk/spannablebar/badge.svg?style=flat)](https://maven-badges.herokuapp.com/maven-central/com.github.greasemonk/spannablebar)
+[![API](https://img.shields.io/badge/API-16%2B-yellow.svg?style=flat)](https://android-arsenal.com/api?level=16)  
+[![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-SpannableBar-brightgreen.svg?style=flat)]()
+
 SpannableBar 
 ===================
 
@@ -12,7 +15,7 @@ I decided to create a custom view that does only what I needed it to be.
 The following example usage is from the [TimeTable](https://github.com/GreaseMonk/android-timetable-core) repository
 Here you can see a timetable where SpannableBars are used in each row item.
 
-![example application](https://github.com/GreaseMonk/android-timetable-core/blob/master/images/device-2016-11-23-162112.png) 
+![example application](https://github.com/GreaseMonk/android-timetable-core/blob/master/images/device-2016-11-25-151601.png) 
 
 # Installation
 
