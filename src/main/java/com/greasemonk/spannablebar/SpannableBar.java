@@ -14,6 +14,7 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
+import android.widget.Toast;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -135,6 +136,16 @@ public class SpannableBar extends View
 		linePaint = new Paint();
 		linePaint.setColor(Color.GRAY);
 		linePaint.setAlpha(125);
+		
+		setOnClickListener(new OnClickListener()
+		{
+			@Override
+			public void onClick(View view)
+			{
+				if(text != null)
+					Toast.makeText(getContext(), text, Toast.LENGTH_SHORT).show();
+			}
+		});
 		
 		setRadius(DEFAULT_RADIUS);
 		requestLayout();
