@@ -158,9 +158,18 @@ public class SpannableBar extends View
 				}
 			}
 			
-			final int coordLeft = (renderToSides && start == 0 ? 0 : getPaddingLeft()) + (start * colWidth);
+			final boolean fromStart = start == 0;
+			final boolean toEnd = start + span == columnCount;
+			final int coordLeft = (renderToSides && fromStart ? 0 : getPaddingLeft()) + (start * colWidth);
 			final int coordTop = getPaddingTop();
-			final int coordRight = coordLeft + (span * colWidth) - (renderToSides && (start + span == columnCount) ? 0 : getPaddingRight() - getPaddingLeft());
+			int coordRight = coordLeft + (span * colWidth);
+			if(renderToSides)
+			{
+				if(!fromStart)
+					coordRight -= getPaddingLeft();
+				if(!toEnd)
+					coordRight -= getPaddingRight();//(renderToSides ? (fromStart ? 0 : getPaddingLeft()) - (toEnd ? 0 : getPaddingRight()) : 0);
+			}
 			final int coordBottom = canvas.getHeight() - getPaddingBottom();
 			
 			// Draw the column background colors
@@ -200,13 +209,34 @@ public class SpannableBar extends View
 			// Only make a drawcall if there is actually something to draw.
 			if (text != null && !text.isEmpty())
 			{
-				final int textCoordX = coordLeft + (coordRight / 2);
-				final int textBaselineToCenter = Math.abs(Math.round(((textPaint.descent() + textPaint.ascent()) / 2)));
-				final int textBaselineCoordY = (canvas.getHeight() / 2) + textBaselineToCenter;
-				if (text != null && !text.isEmpty())
+				
+				int textCoordX = getPaddingLeft() + coordLeft;
+				int textBaselineToCenter = Math.abs(Math.round(((textPaint.descent() + textPaint.ascent()) / 2)));
+				int textBaselineCoordY = (canvas.getHeight() / 2) + textBaselineToCenter;
+				Rect bounds = new Rect();
+				int characters = text.length();
+				
+				textPaint.getTextBounds(text, 0, characters, bounds);
+				while(bounds.right > coordRight - coordLeft)
 				{
-					canvas.drawText(text, textCoordX, textBaselineCoordY, textPaint);
+					textPaint.getTextBounds(text, 0, characters, bounds);
+					characters--;
 				}
+				
+				String displayedText = text;
+				if(characters != text.length() && characters > 3)
+				{
+					displayedText = text.substring(0, characters - 3) + "...";
+				}
+				textCoordX += bounds.width() / 2;
+				
+				if(characters == text.length() && coordRight > 0) // prevent division by zero
+				{
+					textCoordX -= bounds.width() / 2;
+					textCoordX += (coordRight - coordLeft) / 2;
+				}
+				
+				canvas.drawText(displayedText, 0, displayedText.length(), textCoordX, textBaselineCoordY, textPaint);
 			}
 		}
 	}
