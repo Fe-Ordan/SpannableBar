@@ -14,7 +14,7 @@ ext {
     siteUrl = 'https://github.com/GreaseMonk/SpannableBar'
     gitUrl = 'https://github.com/GreaseMonk/SpannableBar.git'
 
-    libraryVersion = '1.0.1'
+    libraryVersion = '1.0.2'
 
     developerId = 'greasemonk'
     developerName = 'Wiebe Geertsma'
@@ -34,8 +34,8 @@ android {
     defaultConfig {
         minSdkVersion 16
         targetSdkVersion 25
-        versionCode 101
-        versionName "1.0.1"
+        versionCode 102
+        versionName "1.0.2"
     }
     buildTypes {
         release {
