@@ -5,6 +5,8 @@
 SpannableBar 
 ===================
 
+Note: you need to use the gradle dependency, cloning the repository will probably not compile as it is a work in progress.
+
 SpannableBar is a Grid-style spannable bar, that is useful when you need a way to span a bar over columns. The view allows you to set the starting column, the span, the number of columns, and more.
 
 I have personally spent days to GridView, GridLayout and TableLayout but have been unable to SIMPLY make a 'bar' that spans over a couple of columns, with the possibility to set the start as well.
@@ -78,4 +80,6 @@ bar.setColumnColor(int row, int color)
 
 ```
 
+Add the data:
 
+https://github.com/GreaseMonk/android-timetable/tree/53dd4ba6921ca75176c0e80816f07188d531a7a9/app/src/main/java/com/greasemonk/timetable/app
