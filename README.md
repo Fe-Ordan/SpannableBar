@@ -79,7 +79,3 @@ bar.setTextTypeface(Typeface typeface)
 bar.setColumnColor(int row, int color) 
 
 ```
-
-Add the data:
-
-https://github.com/GreaseMonk/android-timetable/tree/53dd4ba6921ca75176c0e80816f07188d531a7a9/app/src/main/java/com/greasemonk/timetable/app
